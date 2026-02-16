@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رمضان كريييم سحورنا 🌙</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-gold: #ffcc00;
+            --neon-red: #ff3c3c;
+            --bg-dark: #050507;
+            --panel: rgba(15, 15, 20, 0.98);
+        }
+
+        * { box-sizing: border-box; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Cairo', sans-serif; background: var(--bg-dark);
+            color: #fff; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center;
+        }
+
+        /* --- الهياكل --- */
+        .app-frame { width: 100%; max-width: 500px; height: 100vh; background: var(--panel); border-left: 1px solid #1a1a1a; border-right: 1px solid #1a1a1a; display: none; flex-direction: column; position: relative; }
+        .active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- واجهة الدخول --- */
+        .auth-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px; text-align: center; }
+        .neon-brand { font-size: 32px; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 20px rgba(255, 204, 0, 0.4); margin-bottom: 40px; }
+        
+        input, textarea {
+            width: 100%; padding: 14px; margin: 8px 0; background: #000; border: 1px solid #222;
+            color: white; border-radius: 10px; outline: none; font-size: 16px; text-align: center; font-family: inherit;
+        }
+        input:focus { border-color: var(--neon-gold); box-shadow: 0 0 10px rgba(255, 204, 0, 0.1); }
+
+        .btn { padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .btn-gold { background: var(--neon-gold); color: #000; }
+        .btn-red { background: var(--neon-red); color: #fff; }
+
+        /* --- الشات والترويسة --- */
+        .header { padding: 12px 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a1a1a; }
+        #typing-status { font-size: 11px; color: var(--neon-gold); height: 15px; text-align: center; background: #000; }
+        #chat-flow { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: radial-gradient(circle at top, #0f0f15, #050507); }
+
+        /* الرسائل */
+        .msg { max-width: 85%; padding: 12px; border-radius: 15px; position: relative; font-size: 14px; }
+        .me { align-self: flex-start; background: rgba(255, 204, 0, 0.03); border: 1px solid var(--neon-gold); color: var(--neon-gold); }
+        .others { align-self: flex-end; background: rgba(255, 60, 60, 0.03); border: 1px solid var(--neon-red); color: #eee; }
+        
+        .pfp-small { width: 25px; height: 25px; border-radius: 50%; vertical-align: middle; margin-left: 5px; object-fit: cover; border: 1px solid #444; }
+        .sender-n { font-size: 10px; font-weight: 800; display: flex; align-items: center; margin-bottom: 5px; }
+        .info-trigger { font-size: 10px; cursor: pointer; color: #555; margin-right: 8px; }
+        .info-trigger { font-size: 10px; cursor: pointer; color: #555; }
+        .info-trigger:hover { color: var(--neon-gold); }
+        .msg-actions {
+            margin-right: auto; /* Pushes it to the end in RTL */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- البروفايل --- */
+        .pfp-container { width: 100px; height: 100px; margin: 0 auto 15px; position: relative; }
+        .pfp-large { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-gold); }
+        .pfp-edit { position: absolute; bottom: 0; right: 0; background: var(--neon-gold); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: #000; cursor: pointer; font-size: 12px; }
+
+        /* --- مودال --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-body { background: #0a0a0c; border: 1px solid #222; padding: 25px; width: 100%; max-width: 400px; border-radius: 20px; text-align: center; }
+
+        .social-row { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+        .social-link { color: var(--neon-gold); text-decoration: none; font-size: 12px; }
+
+        /* --- التحكم --- */
+        .input-box { padding: 12px; background: #000; display: flex; gap: 8px; align-items: center; border-top: 1px solid #1a1a1a; }
+        .icon-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+        #text-msg { flex: 1; background: #0f0f12; padding: 10px 15px; margin: 0; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div id="scr-auth" class="app-frame active">
+        <div class="auth-center">
+            <div class="neon-brand">رمضان كريييم<br>سحورنا 🌙</div>
+            <div id="box-login">
+                <input type="tel" id="in-phone" placeholder="رقم الموبايل (11 رقم)">
+                <button class="btn btn-gold" onclick="authStep1()">تفعيل الدخول</button>
+            </div>
+            <div id="box-reg" style="display:none;">
+                <p style="color:var(--neon-red)">أهلاً بك في سحورنا.. اختر اسمك</p>
+                <input type="text" id="in-name" placeholder="الاسم المستعار">
+                <button class="btn btn-red" onclick="authStep2()">تأكيد الحساب</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-lobby" class="app-frame">
+        <div class="header">
+            <strong id="display-myname" style="color:var(--neon-gold)">...</strong>
+            <button class="icon-btn" onclick="openProfile()"><i class="fa-solid fa-user-pen"></i></button>
+        </div>
+        <div style="padding: 20px;">
+            <div onclick="joinRoom('main')" style="border: 1px solid #222; padding: 25px; margin-bottom: 15px; cursor: pointer; border-right: 5px solid var(--neon-gold); background: #0a0a0c; border-radius: 10px;">
+                <strong>⚡ مجلس سحورنا العام</strong><br>
+                <small style="color:#555">دردشة رمضانية حية</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-chat" class="app-frame">
+        <div class="header">
+            <button class="icon-btn" onclick="goBackToLobby()" style="color:#fff"><i class="fa-solid fa-arrow-right"></i></button>
+            <strong style="color:var(--neon-gold)">المجلس العام</strong>
+            <button class="icon-btn" onclick="clearChat()"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div id="typing-status"></div>
+        <div id="chat-flow"></div>
+        <div class="input-box">
+            <label class="icon-btn"><i class="fa-regular fa-image"></i> <input type="file" id="file-img" hidden accept="image/*" onchange="preView(this, 'img')"></label>
+            <label class="icon-btn"><i class="fa-solid fa-paperclip"></i> <input type="file" id="file-doc" hidden onchange="preView(this, 'doc')"></label>
+            <textarea id="text-msg" placeholder="اكتب بروتوكولك..." rows="1" oninput="handleInput()"></textarea>
+            <div id="record-timer" style="display: none; color: var(--neon-red); font-size: 14px; width: 40px;">0:00</div>
+            <button id="btn-send" class="icon-btn" onclick="sendText()" style="color:var(--neon-gold); display:none;"><i class="fa-solid fa-paper-plane"></i></button>
+            <button id="btn-record" class="icon-btn" onclick="toggleRecord()"><i class="fa-solid fa-microphone"></i></button>
+        </div>
+    </div>
+
+    <div id="mod-profile" class="modal">
+        <div class="modal-body">
+            <div class="pfp-container">
+                <img id="my-pfp" class="pfp-large" src="https://via.placeholder.com/100">
+                <label class="pfp-edit"><i class="fa-solid fa-camera"></i><input type="file" hidden accept="image/*" onchange="uploadPFP(this)"></label>
+            </div>
+            <input type="text" id="prof-name" placeholder="الاسم">
+            <textarea id="prof-bio" placeholder="نبذة عنك (وصف)"></textarea>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="prof-fb" placeholder="رابط فيسبوك">
+                <input type="text" id="prof-wa" placeholder="رقم واتساب">
+            </div>
+            <button class="btn btn-gold" style="width:100%" onclick="saveProfile()">حفظ التغييرات</button>
+            <button class="btn btn-red" style="width:100%" onclick="logout()">خروج</button>
+            <button class="btn" style="background:none; color:#666; width:100%" onclick="closeMod()">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="mod-info" class="modal">
+        <div class="modal-body">
+            <h3 style="color:var(--neon-gold)">تفاصيل الرسالة</h3>
+            <div id="msg-details-content" style="text-align: right; font-size: 13px; line-height: 2;"></div>
+            <button class="btn btn-gold" style="width:100%" onclick="closeMod()">فهمت</button>
+        </div>
+    </div>
+
+    <div id="mod-preview" class="modal">
+        <div class="modal-body">
+            <h3 style="color:var(--neon-gold)">تأكيد الإرسال</h3>
+            <div id="preview-content" style="margin: 15px 0; max-height: 300px; overflow: auto;"></div>
+            <button class="btn btn-gold" style="width:100%" onclick="confirmSend()">إرسال الآن</button>
+            <button class="btn" style="background:none; color:#666; width:100%" onclick="closeMod()">إلغاء</button>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, get, child, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD092yeOowtCLW0fDcIzaEXrnxvrN4X5T8",
+        authDomain: "abqarieno.firebaseapp.com",
+        databaseURL: "https://abqarieno-default-rtdb.firebaseio.com",
+        projectId: "abqarieno",
+        storageBucket: "abqarieno.firebasestorage.app",
+        messagingSenderId: "790682500839",
+        appId: "1:790682500839:web:cde37488fc2a4f84e06c42"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let myP = localStorage.getItem('s_p'), myN = localStorage.getItem('s_n'), activeR = '', typeTimer, currentFile = null;
+    let unsubscribeMessages, unsubscribeTyping, mediaRecorder, audioChunks = [], isRecording = false, recordInterval;
+
+    window.onload = () => { if(myP && myN) goLobby(); };
+
+    // --- الدخول والتحقق ---
+    window.authStep1 = async () => {
+        const p = document.getElementById('in-phone').value.trim();
+        const reg = /^01[0125][0-9]{8}$/; // تحقق من الرقم المصري كمثال
+        if(!reg.test(p)) return alert('يرجى إدخال رقم هاتف صحيح (11 رقم)');
+        
+        const s = await get(child(ref(db), `users/${p}`));
+        if(s.exists()) {
+            login(p, s.val().name);
+        } else {
+            document.getElementById('box-login').style.display = 'none';
+            document.getElementById('box-reg').style.display = 'block';
+            window.tmpP = p;
+        }
+    };
+
+    window.authStep2 = async () => {
+        const n = document.getElementById('in-name').value.trim();
+        if(n.length < 2) return alert('الاسم قصير جداً');
+        await set(ref(db, `users/${window.tmpP}`), { name: n, pfp: '', bio: '', fb: '', wa: '' });
+        login(window.tmpP, n);
+    };
+
+    function login(p, n) {
+        myP = p; myN = n;
+        localStorage.setItem('s_p', p); localStorage.setItem('s_n', n);
+        goLobby();
+    }
+
+    // --- البروفايل القوي ---
+    window.openProfile = async () => {
+        document.getElementById('mod-profile').style.display = 'flex';
+        const s = await get(child(ref(db), `users/${myP}`));
+        const d = s.val();
+        document.getElementById('prof-name').value = d.name;
+        document.getElementById('prof-bio').value = d.bio || '';
+        document.getElementById('prof-fb').value = d.fb || '';
+        document.getElementById('prof-wa').value = d.wa || '';
+        if(d.pfp) document.getElementById('my-pfp').src = d.pfp;
+    };
+
+    window.uploadPFP = (el) => {
+        const file = el.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('my-pfp').src = e.target.result;
+            window.tempPFP = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.saveProfile = async () => {
+        const upd = {
+            name: document.getElementById('prof-name').value,
+            bio: document.getElementById('prof-bio').value,
+            fb: document.getElementById('prof-fb').value,
+            wa: document.getElementById('prof-wa').value,
+        };
+        if(window.tempPFP) upd.pfp = window.tempPFP;
+        await update(ref(db, `users/${myP}`), upd);
+        myN = upd.name;
+        localStorage.setItem('s_n', myN);
+        alert('تم تحديث بروفايلك بنجاح ✨');
+        closeMod();
+    };
+
+    // --- الرجوع للردهة مع التنظيف ---
+    window.goBackToLobby = () => {
+        if (unsubscribeMessages) unsubscribeMessages();
+        if (unsubscribeTyping) unsubscribeTyping();
+        
+        if (activeR && myP) {
+            remove(ref(db, `typing/${activeR}/${myP}`));
+        }
+
+        activeR = '';
+        nav('scr-lobby');
+    };
+
+    // --- نظام يكتب الآن ---
+    window.handleInput = () => {
+        const text = document.getElementById('text-msg').value;
+        const hasText = text.trim().length > 0;
+        document.getElementById('btn-send').style.display = hasText ? 'inline-block' : 'none';
+        document.getElementById('btn-record').style.display = hasText ? 'none' : 'inline-block';
+        
+        if (hasText) {
+            set(ref(db, `typing/${activeR}/${myP}`), myN);
+            clearTimeout(typeTimer);
+            typeTimer = setTimeout(() => {
+                remove(ref(db, `typing/${activeR}/${myP}`));
+            }, 2000);
+        }
+    };
+
+    function watchTyping() {
+        if (unsubscribeTyping) unsubscribeTyping();
+        unsubscribeTyping = onValue(ref(db, `typing/${activeR}`), (snap) => {
+            const users = snap.val();
+            const el = document.getElementById('typing-status');
+            if(!users) { el.innerText = ''; return; }
+            const names = Object.values(users).filter(n => n !== myN);
+            el.innerText = names.length > 0 ? `📝 ${names.join(', ')} يكتب الآن...` : '';
+        });
+    }
+
+    // --- الشات والإرسال ---
+    window.joinRoom = (id) => {
+        activeR = id;
+        nav('scr-chat');
+        watchTyping();
+        loadMessages();
+        handleInput();
+    };
+
+    window.sendText = () => {
+        const t = document.getElementById('text-msg').value.trim();
+        if(!t) return;
+        push(ref(db, `chat_v6/${activeR}`), {
+            p: myP, n: myN, t: t, type: 'text', time: Date.now(), read: false
+        });
+        document.getElementById('text-msg').value = '';
+        remove(ref(db, `typing/${activeR}/${myP}`));
+    };
+
+    // --- تسجيل الصوت ---
+    window.toggleRecord = async () => {
+        if (isRecording) {
+            mediaRecorder.stop();
+        } else {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                isRecording = true;
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    isRecording = false;
+                    clearInterval(recordInterval);
+                    document.getElementById('record-timer').style.display = 'none';
+                    document.getElementById('btn-record').querySelector('i').style.color = '';
+
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        push(ref(db, `chat_v6/${activeR}`), { p: myP, n: myN, t: 'رسالة صوتية', data: e.target.result, type: 'audio', time: Date.now(), read: false });
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                document.getElementById('btn-record').querySelector('i').style.color = 'var(--neon-red)';
+                
+                let seconds = 0;
+                const timerEl = document.getElementById('record-timer');
+                timerEl.style.display = 'block';
+                timerEl.innerText = '0:00';
+                recordInterval = setInterval(() => {
+                    seconds++;
+                    const min = Math.floor(seconds / 60);
+                    const sec = seconds % 60;
+                    timerEl.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+                }, 1000);
+
+            } catch (err) {
+                alert("لا يمكن الوصول للميكروفون. يرجى منح الإذن والمحاولة مرة أخرى.");
+            }
+        }
+    };
+
+    // --- معالجة الملفات والصور ---
+    window.preView = (el, type) => {
+        const file = el.files[0];
+        if(!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            currentFile = { data: e.target.result, type: type, name: file.name };
+            const content = document.getElementById('preview-content');
+            
+            if(type === 'img') {
+                content.innerHTML = `<img src="${e.target.result}" style="max-width:100%; border-radius:10px;">`;
+            } else {
+                content.innerHTML = `<div style="font-size:50px"><i class="fa-solid fa-file"></i></div><div>${file.name}</div>`;
+            }
+            document.getElementById('mod-preview').style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+        el.value = ''; // تصفير الإدخال
+    };
+
+    window.confirmSend = () => {
+        if(!currentFile) return;
+        push(ref(db, `chat_v6/${activeR}`), {
+            p: myP, n: myN, 
+            t: currentFile.name, // نستخدم الاسم كعنوان
+            data: currentFile.data, // البيانات (base64)
+            type: currentFile.type, 
+            time: Date.now(), read: false
+        });
+        closeMod();
+        currentFile = null;
+    };
+
+    function loadMessages() {
+        if (unsubscribeMessages) unsubscribeMessages();
+        unsubscribeMessages = onValue(ref(db, `chat_v6/${activeR}`), async (snap) => {
+            const flow = document.getElementById('chat-flow');
+            flow.innerHTML = '';
+            
+            // جلب بيانات المستخدمين للصور
+            const usersSnap = await get(child(ref(db), `users`));
+            const allUsers = usersSnap.val() || {};
+
+            snap.forEach(c => {
+                const m = c.val();
+                const isMe = m.p === myP;
+                const userPFP = allUsers[m.p]?.pfp || 'https://via.placeholder.com/25';
+                
+                if(!isMe && !m.read) update(ref(db, `chat_v6/${activeR}/${c.key}`), { read: true });
+
+                const d = document.createElement('div');
+                d.className = `msg ${isMe ? 'me' : 'others'}`;
+                
+                let content = '';
+                if(m.type === 'text') content = `<div>${m.t}</div>`;
+                else if(m.type === 'img') content = `<img src="${m.data}" style="max-width:100%; border-radius:10px; margin-top:5px; cursor:pointer" onclick="window.open(this.src)">`;
+                else if(m.type === 'doc') content = `<a href="${m.data}" download="${m.t}" style="display:block; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; color:inherit; text-decoration:none; margin-top:5px;"><i class="fa-solid fa-file-arrow-down"></i> ${m.t}</a>`;
+                else if(m.type === 'audio') content = `<audio controls src="${m.data}" style="width: 100%; margin-top: 5px;"></audio>`;
+                else content = `<div>${m.t}</div>`; // fallback
+
+                const deleteIcon = isMe ? `<span class="info-trigger" onclick="window.deleteMessage('${c.key}')"><i class="fa-solid fa-trash-can"></i></span>` : '';
+
+                let body = `
+                    <div class="sender-n">
+                        <img src="${userPFP}" class="pfp-small">
+                        <span>${m.n}</span>
+                        <span class="info-trigger" onclick="showMsgInfo('${c.key}', '${m.time}', ${m.read})">ⓘ</span>
+                        <div class="msg-actions">
+                           ${deleteIcon}
+                           <span class="info-trigger" onclick="showMsgInfo('${c.key}', '${m.time}', ${m.read})">ⓘ</span>
+                        </div>
+                    </div>
+                    ${content}
+                `;
+                d.innerHTML = body;
+                flow.appendChild(d);
+            });
+            flow.scrollTop = flow.scrollHeight;
+        });
+    }
+
+    window.showMsgInfo = (id, time, read) => {
+        const date = new Date(parseInt(time)).toLocaleString('ar-EG');
+        document.getElementById('msg-details-content').innerHTML = `
+            <b>وقت الإرسال:</b> ${date}<br>
+            <b>الحالة:</b> ${read ? 'تمت القراءة ✅✅' : 'وصلت فقط ✅'}<br>
+            <b>معرف الرسالة:</b> ${id.substring(1, 10)}...
+        `;
+        document.getElementById('mod-info').style.display = 'flex';
+    };
+
+    window.deleteMessage = (msgId) => {
+        if (confirm('هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+            remove(ref(db, `chat_v6/${activeR}/${msgId}`));
+        }
+    };
+
+    // --- عام ---
+    function goLobby() { document.getElementById('display-myname').innerText = myN; nav('scr-lobby'); }
+    function nav(id) { document.querySelectorAll('.app-frame').forEach(f => f.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    window.closeMod = () => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); };
+    window.logout = () => { if(confirm('هل أنت متأكد من تسجيل الخروج؟')) { localStorage.clear(); location.reload(); } };
+    window.clearChat = () => { if(confirm('مسح السجل؟')) remove(ref(db, `chat_v6/${activeR}`)); };
+
+    document.getElementById('text-msg').onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); } };
+</script>
+</body>
+</html>

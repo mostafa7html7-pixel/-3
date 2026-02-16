@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رمضان كريييم سحورنا 🌙</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-gold: #ffcc00;
+            --neon-red: #ff3c3c;
+            --bg-dark: #020204;
+            --glass: rgba(255, 255, 255, 0.03);
+            --shadow-gold: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body {
+            font-family: 'Cairo', sans-serif; background: var(--bg-dark);
+            color: #fff; margin: 0; height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- حاوية التطبيق --- */
+        .app-frame { 
+            width: 100%; max-width: 480px; height: 100vh; 
+            background: linear-gradient(180deg, #0a0a0f 0%, #020204 100%);
+            display: none; flex-direction: column; position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+        .active { display: flex; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- الهيدر الاحترافي --- */
+        .header { 
+            padding: 20px; background: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(10px); display: flex; 
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.1); z-index: 10;
+        }
+        
+        .profile-trigger {
+            width: 45px; height: 45px; border-radius: 50%;
+            border: 2px solid var(--neon-gold); padding: 2px;
+            cursor: pointer; box-shadow: var(--shadow-gold);
+        }
+        .profile-trigger img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        /* --- واجهة الشات --- */
+        #chat-flow { 
+            flex: 1; overflow-y: auto; padding: 20px; 
+            display: flex; flex-direction: column; gap: 15px;
+            background: url('https://www.transparenttextures.com/patterns/black-linen.png');
+        }
+
+        .msg { 
+            max-width: 80%; padding: 14px 18px; border-radius: 20px; 
+            position: relative; font-size: 15px; line-height: 1.5;
+            backdrop-filter: blur(5px);
+        }
+        .me { 
+            align-self: flex-start; background: rgba(255, 204, 0, 0.07); 
+            border: 1px solid rgba(255, 204, 0, 0.3); color: var(--neon-gold);
+            border-bottom-right-radius: 4px; box-shadow: -5px 5px 15px rgba(0,0,0,0.3);
+        }
+        .others { 
+            align-self: flex-end; background: rgba(255, 60, 60, 0.07); 
+            border: 1px solid rgba(255, 60, 60, 0.3); color: #fff;
+            border-bottom-left-radius: 4px; box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .typing-bubble {
+            font-size: 12px; color: var(--neon-gold); padding: 5px 20px;
+            font-style: italic; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* --- صندوق الإدخال --- */
+        .input-area { 
+            padding: 15px; background: #000; display: flex; align-items: center; 
+            gap: 12px; border-top: 1px solid #111;
+        }
+        #text-msg { 
+            flex: 1; background: #0f0f12; border: 1px solid #222; 
+            color: #fff; padding: 12px 20px; border-radius: 30px; 
+            outline: none; font-family: inherit; resize: none;
+        }
+        .send-btn { 
+            background: var(--neon-gold); width: 45px; height: 45px; 
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow-gold);
+        }
+
+        /* --- مودال البروفايل السينمائي --- */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 1000; display: none; justify-content: center; align-items: center; 
+        }
+        .modal-content { 
+            width: 85%; max-width: 350px; background: #0a0a0f; 
+            border: 1px solid var(--neon-gold); border-radius: 30px;
+            padding: 30px; text-align: center; position: relative;
+        }
+        .modal-close { position: absolute; top: 15px; left: 15px; cursor: pointer; font-size: 20px; color: #555; }
+
+        .big-avatar { 
+            width: 120px; height: 120px; border-radius: 50%; 
+            border: 3px solid var(--neon-gold); margin-bottom: 20px;
+            box-shadow: var(--shadow-gold);
+        }
+
+        /* --- أزرار التحكم --- */
+        .nav-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .nav-btn:hover { color: var(--neon-gold); transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <div id="scr-auth" class="app-frame active">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px; text-align: center;">
+            <h1 style="color: var(--neon-gold); font-size: 40px; margin-bottom: 10px;">سحورنا 🌙</h1>
+            <p style="color: #666; margin-bottom: 40px;">نظام التواصل الرمضاني المتطور</p>
+            
+            <div id="login-fields">
+                <input type="tel" id="in-phone" placeholder="رقم الهاتف (01xxxxxxxxx)" style="width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: #fff; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+                <button onclick="handleAuth()" style="width: 100%; padding: 15px; background: var(--neon-gold); border: none; border-radius: 12px; font-weight: 900; cursor: pointer;">دخول فوري</button>
+            </div>
+            
+            <div id="reg-fields" style="display: none;">
+                <input type="text" id="in-name" placeholder="اسم العرض" style="width: 100%; padding: 15px; background: #000; border: 1px solid #222; color: #fff; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+                <button onclick="completeReg()" style="width: 100%; padding: 15px; background: var(--neon-red); border: none; border-radius: 12px; font-weight: 900; color: #fff; cursor: pointer;">تأكيد الهوية</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-lobby" class="app-frame">
+        <div class="header">
+            <div class="profile-trigger" onclick="openProfile()">
+                <img id="my-pfp-min" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky">
+            </div>
+            <h2 style="font-size: 18px; color: var(--neon-gold);">المجالس</h2>
+            <button class="nav-btn" onclick="logout()">🚪</button>
+        </div>
+        <div style="padding: 20px;">
+            <div onclick="enterChat('main')" style="background: var(--glass); border: 1px solid #222; padding: 30px; border-radius: 20px; cursor: pointer; border-left: 5px solid var(--neon-gold);">
+                <h3 style="margin: 0;">⚡ المجلس العام</h3>
+                <p style="color: #555; font-size: 12px; margin-top: 10px;">انقر للبدء بالتحدث مع الجميع</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-chat" class="app-frame">
+        <div class="header">
+            <button class="nav-btn" onclick="goBack()">🔙</button>
+            <div style="text-align: center;">
+                <div id="room-name" style="font-weight: 900; color: var(--neon-gold);">المجلس العام</div>
+                <div id="typing-box" class="typing-bubble"></div>
+            </div>
+            <button class="nav-btn" onclick="clearMessages()">🗑️</button>
+        </div>
+        <div id="chat-flow"></div>
+        <div class="input-area">
+            <label style="cursor: pointer; font-size: 20px;">🖼️ <input type="file" hidden accept="image/*" onchange="sendImage(this)"></label>
+            <textarea id="text-msg" placeholder="اكتب رسالتك..." rows="1" oninput="reportTyping()"></textarea>
+            <button class="send-btn" onclick="sendMsg()">🚀</button>
+        </div>
+    </div>
+
+    <div id="mod-profile" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeMod()">✕</span>
+            <div style="position: relative; display: inline-block;">
+                <img id="my-pfp-big" class="big-avatar" src="">
+                <label style="position: absolute; bottom: 20px; right: 0; background: var(--neon-gold); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #000;">
+                    📷 <input type="file" hidden accept="image/*" onchange="updatePFP(this)">
+                </label>
+            </div>
+            <h3 id="prof-display-name" style="color: var(--neon-gold); margin: 10px 0;"></h3>
+            <textarea id="prof-bio" placeholder="اكتب نبذة عنك..." style="width: 100%; background: #000; border: 1px solid #222; color: #ccc; padding: 10px; border-radius: 10px; margin-bottom: 20px;"></textarea>
+            <button onclick="saveProfile()" style="width: 100%; padding: 12px; background: var(--neon-gold); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">حفظ التغييرات</button>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, get, child, remove, update, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD092yeOowtCLW0fDcIzaEXrnxvrN4X5T8",
+        authDomain: "abqarieno.firebaseapp.com",
+        databaseURL: "https://abqarieno-default-rtdb.firebaseio.com",
+        projectId: "abqarieno",
+        storageBucket: "abqarieno.firebasestorage.app",
+        messagingSenderId: "790682500839",
+        appId: "1:790682500839:web:cde37488fc2a4f84e06c42"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let myP = localStorage.getItem('up_p'), myN = localStorage.getItem('up_n'), activeR = '', typeTimer;
+
+    window.onload = () => { if(myP && myN) loadUserData(); };
+
+    // --- نظام الدخول المحكم ---
+    window.handleAuth = async () => {
+        const p = document.getElementById('in-phone').value.trim();
+        if(!/^01[0125][0-9]{8}$/.test(p)) return alert('أدخل رقم هاتف مصري صحيح');
+        
+        const s = await get(child(ref(db), `users/${p}`));
+        if(s.exists()) {
+            login(p, s.val().name);
+        } else {
+            document.getElementById('login-fields').style.display = 'none';
+            document.getElementById('reg-fields').style.display = 'block';
+            window.tempP = p;
+        }
+    };
+
+    window.completeReg = async () => {
+        const n = document.getElementById('in-name').value.trim();
+        if(n.length < 2) return;
+        const defaultPfp = `https://api.dicebear.com/7.x/avataaars/svg?seed=${n}`;
+        await set(ref(db, `users/${window.tempP}`), { name: n, pfp: defaultPfp, bio: 'أهلاً بك في عالمي!' });
+        login(window.tempP, n);
+    };
+
+    function login(p, n) {
+        myP = p; myN = n;
+        localStorage.setItem('up_p', p); localStorage.setItem('up_n', n);
+        loadUserData();
+    }
+
+    async function loadUserData() {
+        const s = await get(child(ref(db), `users/${myP}`));
+        const d = s.val();
+        document.getElementById('my-pfp-min').src = d.pfp;
+        document.getElementById('my-pfp-big').src = d.pfp;
+        document.getElementById('prof-display-name').innerText = d.name;
+        document.getElementById('prof-bio').value = d.bio || '';
+        nav('scr-lobby');
+    }
+
+    // --- وظيفة الرجوع الذكي ---
+    window.goBack = () => {
+        // تنظيف المستمعات لتجنب تكرار البيانات أو أخطاء الذاكرة
+        off(ref(db, `v7/${activeR}`));
+        off(ref(db, `typing/${activeR}`));
+        remove(ref(db, `typing/${activeR}/${myP}`));
+        activeR = '';
+        nav('scr-lobby');
+    };
+
+    // --- الشات المبهر ---
+    window.enterChat = (id) => {
+        activeR = id;
+        nav('scr-chat');
+        syncChat();
+        syncTyping();
+    };
+
+    window.sendMsg = () => {
+        const t = document.getElementById('text-msg').value.trim();
+        if(!t) return;
+        push(ref(db, `v7/${activeR}`), { p: myP, n: myN, t: t, type: 'txt', time: Date.now() });
+        document.getElementById('text-msg').value = '';
+        remove(ref(db, `typing/${activeR}/${myP}`));
+    };
+
+    function syncChat() {
+        onValue(ref(db, `v7/${activeR}`), async (snap) => {
+            const flow = document.getElementById('chat-flow');
+            flow.innerHTML = '';
+            const users = (await get(child(ref(db), 'users'))).val();
+
+            snap.forEach(c => {
+                const m = c.val();
+                const isMe = m.p === myP;
+                const pfp = users[m.p]?.pfp || '';
+
+                const d = document.createElement('div');
+                d.className = `msg ${isMe ? 'me' : 'others'}`;
+                d.innerHTML = `
+                    <div style="font-size: 10px; font-weight: 900; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
+                        <img src="${pfp}" style="width: 18px; height: 18px; border-radius: 50%;">
+                        ${m.n}
+                    </div>
+                    ${m.type === 'txt' ? m.t : `<img src="${m.data}" style="max-width: 100%; border-radius: 10px;">`}
+                    <div style="font-size: 8px; text-align: left; margin-top: 5px; opacity: 0.5;">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                `;
+                flow.appendChild(d);
+            });
+            flow.scrollTop = flow.scrollHeight;
+        });
+    }
+
+    // --- نظام "يكتب الآن" التفاعلي ---
+    window.reportTyping = () => {
+        set(ref(db, `typing/${activeR}/${myP}`), myN);
+        clearTimeout(typeTimer);
+        typeTimer = setTimeout(() => remove(ref(db, `typing/${activeR}/${myP}`)), 2000);
+    };
+
+    function syncTyping() {
+        onValue(ref(db, `typing/${activeR}`), (snap) => {
+            const data = snap.val();
+            const box = document.getElementById('typing-box');
+            if(!data) { box.innerText = ''; return; }
+            const names = Object.values(data).filter(n => n !== myN);
+            box.innerText = names.length > 0 ? `📝 ${names[0]} يكتب...` : '';
+        });
+    }
+
+    // --- إدارة البروفايل ---
+    window.openProfile = () => document.getElementById('mod-profile').style.display = 'flex';
+    window.closeMod = () => document.getElementById('mod-profile').style.display = 'none';
+
+    window.updatePFP = (input) => {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('my-pfp-big').src = e.target.result;
+            window.pendingPfp = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.saveProfile = async () => {
+        const newBio = document.getElementById('prof-bio').value;
+        const updates = { bio: newBio };
+        if(window.pendingPfp) updates.pfp = window.pendingPfp;
+        await update(ref(db, `users/${myP}`), updates);
+        alert('تم التحديث بنجاح ✨');
+        loadUserData();
+        closeMod();
+    };
+
+    // --- أدوات عامة ---
+    function nav(id) {
+        document.querySelectorAll('.app-frame').forEach(f => f.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+    window.logout = () => { localStorage.clear(); location.reload(); };
+    window.clearMessages = () => { if(confirm('مسح سجل المجلس؟')) remove(ref(db, `v7/${activeR}`)); };
+
+    document.getElementById('text-msg').onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } };
+</script>
+</body>
+</html>
